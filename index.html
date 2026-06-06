@@ -1,820 +1,203 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ivy Sabandija — Portfolio</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+import tkinter as tk
+import random
+import math
 
-  :root {
-    --ink: #0e0e0f;
-    --ink2: #3a3a40;
-    --ink3: #7a7a85;
-    --surface: #f7f6f2;
-    --surface2: #eeede8;
-    --accent: #1a472a;
-    --accent2: #2d7a47;
-    --accent-light: #d4edda;
-    --gold: #c8973a;
-    --gold-light: #fdf3e0;
-    --white: #ffffff;
-    --border: rgba(14,14,15,0.10);
-    --radius: 12px;
-    --font-head: 'Syne', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
-  }
 
-  html { scroll-behavior: smooth; }
+class FriendApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("A very important question 🐻")
+        self.root.geometry("500x420")
+        self.root.resizable(False, False)
+        self.root.configure(bg="#fff0f6")
 
-  body {
-    font-family: var(--font-body);
-    background: var(--surface);
-    color: var(--ink);
-    line-height: 1.6;
-    font-size: 15px;
-    overflow-x: hidden;
-  }
+        self.no_clicks = 0
+        self.confetti_particles = []
+        self.animating = False
 
-  /* NAV */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 2rem; height: 58px;
-    background: rgba(247,246,242,0.92);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-  }
-  .nav-logo {
-    font-family: var(--font-head);
-    font-weight: 800;
-    font-size: 17px;
-    letter-spacing: -0.5px;
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .nav-logo span { color: var(--accent2); }
-  .nav-links { display: flex; gap: 1.5rem; list-style: none; }
-  .nav-links a {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink2);
-    text-decoration: none;
-    letter-spacing: 0.02em;
-    transition: color 0.2s;
-  }
-  .nav-links a:hover { color: var(--accent2); }
+        self.show_question_screen()
 
-  /* HERO */
-  .hero {
-    min-height: 100vh;
-    display: flex; align-items: center;
-    padding: 100px 2rem 4rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute; top: -80px; right: -100px;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(45,122,71,0.08) 0%, transparent 65%);
-    pointer-events: none;
-  }
-  .hero-inner {
-    max-width: 900px; margin: 0 auto; width: 100%;
-    display: grid; grid-template-columns: 1fr auto; gap: 4rem; align-items: center;
-  }
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--accent-light);
-    color: var(--accent);
-    font-size: 12px; font-weight: 500;
-    padding: 5px 12px; border-radius: 100px;
-    margin-bottom: 1.2rem;
-    border: 1px solid rgba(26,71,42,0.15);
-  }
-  .hero-badge::before {
-    content: ''; width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent2); flex-shrink: 0;
-  }
-  .hero h1 {
-    font-family: var(--font-head);
-    font-size: clamp(2.8rem, 6vw, 4.2rem);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -2px;
-    color: var(--ink);
-    margin-bottom: 1.2rem;
-  }
-  .hero h1 em { color: var(--accent2); font-style: normal; }
-  .hero-desc {
-    font-size: 16px; color: var(--ink2);
-    max-width: 460px; line-height: 1.75;
-    margin-bottom: 2rem;
-  }
-  .hero-cta {
-    display: flex; gap: 12px; flex-wrap: wrap;
-  }
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 10px 20px; border-radius: 8px;
-    font-family: var(--font-body); font-size: 13px; font-weight: 500;
-    cursor: pointer; text-decoration: none; transition: all 0.2s;
-    border: 1px solid transparent;
-  }
-  .btn-primary {
-    background: var(--accent); color: var(--white);
-  }
-  .btn-primary:hover { background: var(--accent2); }
-  .btn-outline {
-    background: transparent; color: var(--ink);
-    border-color: var(--border);
-  }
-  .btn-outline:hover { background: var(--surface2); }
+    def clear(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
 
-  .hero-avatar {
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    border: 3px solid var(--accent-light);
-    overflow: hidden;
-    flex-shrink: 0;
-    background: var(--surface2);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .avatar-initials {
-    font-family: var(--font-head);
-    font-size: 4rem; font-weight: 800;
-    color: var(--accent2);
-    opacity: 0.5;
-  }
+    def show_question_screen(self):
+        self.clear()
 
-  .hero-stats {
-    display: flex; gap: 2rem; margin-top: 2.5rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border);
-  }
-  .stat-num {
-    font-family: var(--font-head);
-    font-size: 1.8rem; font-weight: 800;
-    color: var(--ink); line-height: 1;
-  }
-  .stat-label {
-    font-size: 11px; color: var(--ink3);
-    text-transform: uppercase; letter-spacing: 0.08em;
-    margin-top: 2px;
-  }
+        # Background canvas for question screen
+        self.canvas = tk.Canvas(self.root, width=500, height=420,
+                                bg="#fff0f6", highlightthickness=0)
+        self.canvas.pack(fill="both", expand=True)
 
-  /* SECTIONS */
-  section { padding: 5rem 2rem; }
-  .section-inner { max-width: 900px; margin: 0 auto; }
-  .section-tag {
-    font-size: 11px; font-weight: 500;
-    text-transform: uppercase; letter-spacing: 0.12em;
-    color: var(--accent2);
-    margin-bottom: 0.6rem;
-  }
-  .section-title {
-    font-family: var(--font-head);
-    font-size: clamp(1.8rem, 4vw, 2.5rem);
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1.1;
-    margin-bottom: 2.5rem;
-  }
+        # Sticker
+        self.canvas.create_text(250, 90, text="🐻🐼", font=("Segoe UI Emoji", 52), fill="#c2185b")
 
-  /* ABOUT */
-  #about { background: var(--white); }
-  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
-  .about-text p { color: var(--ink2); line-height: 1.8; margin-bottom: 1rem; }
-  .cert-list { display: flex; flex-direction: column; gap: 10px; }
-  .cert-item {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-  .cert-icon {
-    width: 28px; height: 28px; border-radius: 6px;
-    background: var(--gold-light);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; flex-shrink: 0; color: var(--gold);
-  }
-  .cert-name { font-weight: 500; color: var(--ink); }
+        # Question text
+        self.canvas.create_text(250, 175, text="Will you be my friend?",
+                                font=("Georgia", 22, "bold"), fill="#c2185b")
 
-  /* SKILLS */
-  #skills { background: var(--surface); }
-  .skills-tabs { display: flex; gap: 8px; margin-bottom: 2rem; flex-wrap: wrap; }
-  .tab-btn {
-    padding: 7px 16px; border-radius: 100px;
-    font-size: 13px; font-weight: 500;
-    border: 1px solid var(--border);
-    background: var(--white); color: var(--ink2);
-    cursor: pointer; transition: all 0.2s;
-  }
-  .tab-btn.active {
-    background: var(--accent); color: var(--white); border-color: var(--accent);
-  }
-  .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-  .skill-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem;
-    transition: transform 0.2s;
-  }
-  .skill-card:hover { transform: translateY(-2px); }
-  .skill-icon { font-size: 20px; margin-bottom: 8px; }
-  .skill-name { font-size: 13px; font-weight: 500; color: var(--ink); }
-  .skill-level { display: flex; gap: 3px; margin-top: 8px; }
-  .skill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--surface2); }
-  .skill-dot.filled { background: var(--accent2); }
-  .skills-panel { display: none; }
-  .skills-panel.active { display: grid; }
+        # Yes button
+        yes_btn = tk.Button(
+            self.root, text="  Yes!  ",
+            font=("Georgia", 16, "bold"),
+            bg="#e91e8c", fg="white",
+            activebackground="#c2185b", activeforeground="white",
+            relief="flat", cursor="hand2", bd=0,
+            padx=20, pady=10,
+            command=self.on_yes
+        )
+        self.yes_btn_window = self.canvas.create_window(210, 260, window=yes_btn)
 
-  /* EXPERIENCE */
-  #experience { background: var(--white); }
-  .timeline { display: flex; flex-direction: column; gap: 0; }
-  .timeline-item {
-    display: grid; grid-template-columns: 140px 1fr;
-    gap: 0 2rem; padding: 0 0 2.5rem;
-    position: relative;
-  }
-  .timeline-item:not(:last-child)::after {
-    content: '';
-    position: absolute; left: 140px; top: 12px; bottom: 0;
-    width: 1px; background: var(--border);
-  }
-  .timeline-date {
-    font-size: 12px; font-weight: 500;
-    color: var(--ink3); padding-top: 2px; text-align: right;
-  }
-  .timeline-content { padding-left: 2rem; position: relative; }
-  .timeline-content::before {
-    content: '';
-    position: absolute; left: -5px; top: 8px;
-    width: 9px; height: 9px; border-radius: 50%;
-    background: var(--accent2);
-    border: 2px solid var(--white);
-    outline: 1px solid var(--accent2);
-  }
-  .timeline-role {
-    font-family: var(--font-head);
-    font-size: 17px; font-weight: 700; margin-bottom: 2px;
-  }
-  .timeline-company {
-    font-size: 13px; color: var(--accent2);
-    font-weight: 500; margin-bottom: 10px;
-  }
-  .timeline-bullets { padding-left: 1rem; }
-  .timeline-bullets li {
-    font-size: 13px; color: var(--ink2);
-    margin-bottom: 5px; line-height: 1.6;
-  }
+        # No button
+        self.no_btn = tk.Button(
+            self.root, text="  No  ",
+            font=("Georgia", 14),
+            bg="#fff0f6", fg="#aaaaaa",
+            activebackground="#fce4ec", activeforeground="#888",
+            relief="flat", cursor="hand2", bd=1,
+            padx=16, pady=8,
+            command=self.on_no
+        )
+        self.no_btn_window = self.canvas.create_window(320, 260, window=self.no_btn)
 
-  /* PROJECTS */
-  #projects { background: var(--surface); }
-  .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.2rem; }
-  .project-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.4rem;
-    transition: transform 0.2s;
-  }
-  .project-card:hover { transform: translateY(-3px); }
-  .project-tag {
-    display: inline-block;
-    font-size: 11px; font-weight: 500;
-    padding: 3px 10px; border-radius: 100px;
-    margin-bottom: 10px;
-  }
-  .tag-va { background: var(--accent-light); color: var(--accent); }
-  .tag-dev { background: #e8f0fe; color: #1a56db; }
-  .tag-sec { background: #fef3e2; color: #b45309; }
-  .tag-design { background: #fce7f3; color: #9d174d; }
-  .project-title {
-    font-family: var(--font-head);
-    font-size: 16px; font-weight: 700; margin-bottom: 6px;
-  }
-  .project-desc { font-size: 13px; color: var(--ink2); line-height: 1.65; }
-  .project-tools { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
-  .tool-pill {
-    font-size: 11px; color: var(--ink3);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 2px 8px; border-radius: 100px;
-  }
+        # Hint text
+        self.hint = self.canvas.create_text(250, 360, text="",
+                                            font=("Georgia", 11, "italic"), fill="#e91e8c")
 
-  /* CONTACT */
-  #contact { background: var(--accent); color: var(--white); }
-  #contact .section-tag { color: rgba(255,255,255,0.6); }
-  #contact .section-title { color: var(--white); }
-  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
-  .contact-desc { color: rgba(255,255,255,0.75); line-height: 1.8; margin-bottom: 2rem; }
-  .contact-links { display: flex; flex-direction: column; gap: 12px; }
-  .contact-link {
-    display: flex; align-items: center; gap: 12px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 10px; padding: 12px 16px;
-    text-decoration: none; color: var(--white);
-    font-size: 13px; font-weight: 500;
-    transition: background 0.2s;
-  }
-  .contact-link:hover { background: rgba(255,255,255,0.15); }
-  .contact-link-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: rgba(255,255,255,0.12);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; flex-shrink: 0;
-  }
-  .contact-form { display: flex; flex-direction: column; gap: 12px; }
-  .form-field { display: flex; flex-direction: column; gap: 5px; }
-  .form-field label { font-size: 12px; color: rgba(255,255,255,0.6); }
-  .form-field input, .form-field textarea {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 8px; padding: 10px 14px;
-    color: var(--white); font-family: var(--font-body); font-size: 14px;
-    outline: none; resize: vertical;
-    transition: border-color 0.2s;
-  }
-  .form-field input:focus, .form-field textarea:focus { border-color: rgba(255,255,255,0.4); }
-  .form-field input::placeholder, .form-field textarea::placeholder { color: rgba(255,255,255,0.3); }
-  .btn-white {
-    background: var(--white); color: var(--accent);
-    border: none; padding: 11px 22px;
-    border-radius: 8px; font-family: var(--font-body);
-    font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: opacity 0.2s;
-    align-self: flex-start;
-  }
-  .btn-white:hover { opacity: 0.9; }
+        self.bounce_sticker()
 
-  /* FOOTER */
-  footer {
-    background: var(--ink); color: rgba(255,255,255,0.4);
-    text-align: center; padding: 1.5rem 2rem; font-size: 12px;
-  }
-  footer strong { color: rgba(255,255,255,0.7); }
+    def bounce_sticker(self):
+        if not hasattr(self, 'canvas') or not self.canvas.winfo_exists():
+            return
+        try:
+            t = self.root.after_info  # check root alive
+        except Exception:
+            return
+        self._bounce_step = getattr(self, '_bounce_step', 0)
+        offset = int(6 * math.sin(self._bounce_step * 0.2))
+        self.canvas.coords(self.canvas.find_all()[0], 250, 90 + offset)
+        self._bounce_step += 1
+        self.root.after(60, self.bounce_sticker)
 
-  /* ANIMATIONS */
-  .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s, transform 0.6s; }
-  .fade-in.visible { opacity: 1; transform: translateY(0); }
+    def on_no(self):
+        self.no_clicks += 1
 
-  /* RESPONSIVE */
-  @media (max-width: 640px) {
-    .hero-inner { grid-template-columns: 1fr; }
-    .hero-avatar { display: none; }
-    .about-grid { grid-template-columns: 1fr; }
-    .contact-grid { grid-template-columns: 1fr; }
-    .timeline-item { grid-template-columns: 1fr; }
-    .timeline-item::after { display: none; }
-    .timeline-date { text-align: left; padding-bottom: 4px; }
-    .timeline-content { padding-left: 1rem; }
-    nav { padding: 0 1rem; }
-    .nav-links { gap: 1rem; }
-  }
-</style>
-</head>
-<body>
+        # Shrink the No button over time
+        size = max(9, 14 - self.no_clicks)
+        padx = max(6, 16 - self.no_clicks * 2)
+        pady = max(3, 8 - self.no_clicks)
+        self.no_btn.config(font=("Georgia", size), padx=padx, pady=pady)
 
-<nav>
-  <a href="#" class="nav-logo">Ivy<span>.</span></a>
-  <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#skills">Skills</a></li>
-    <li><a href="#experience">Experience</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-</nav>
+        # Move No button to random position
+        w = self.root.winfo_width()
+        h = self.root.winfo_height()
+        new_x = random.randint(60, w - 60)
+        new_y = random.randint(220, h - 60)
+        self.canvas.coords(self.no_btn_window, new_x, new_y)
 
-<!-- HERO -->
-<section class="hero" id="home">
-  <div class="hero-inner">
-    <div>
-      <div class="hero-badge">Available for new opportunities</div>
-      <h1>Ivy<br><em>Sabandija</em></h1>
-      <p class="hero-desc">Virtual Assistant · Web Developer · IT Support Specialist. I build, manage, and grow digital presence with a sharp eye for detail and a passion for clean, functional work.</p>
-      <div class="hero-cta">
-        <a href="#contact" class="btn btn-primary">Get in Touch →</a>
-        <a href="#experience" class="btn btn-outline">View Experience</a>
-      </div>
-      <div class="hero-stats">
-        <div class="stat-item">
-          <div class="stat-num">2+</div>
-          <div class="stat-label">Years VA experience</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">3</div>
-          <div class="stat-label">NC Certifications</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">10+</div>
-          <div class="stat-label">Tech skills</div>
-        </div>
-      </div>
-    </div>
-    <div class="hero-avatar">
-      <div class="avatar-initials">IS</div>
-    </div>
-  </div>
-</section>
+        hints = [
+            "", "", "Hmm... are you sure? 🤔",
+            "That's not the right button! 😅",
+            "You keep missing... 👀",
+            "Maybe try the other one? 💕",
+            "The No button is getting tired... 😴",
+            "Just click Yes already! 🥺",
+        ]
+        idx = min(self.no_clicks, len(hints) - 1)
+        self.canvas.itemconfig(self.hint, text=hints[idx])
 
-<!-- ABOUT -->
-<section id="about">
-  <div class="section-inner">
-    <div class="section-tag">About me</div>
-    <h2 class="section-title">More than just a<br>Virtual Assistant</h2>
-    <div class="about-grid fade-in">
-      <div class="about-text">
-        <p>I'm Ivy Sabandija, a motivated and detail-oriented professional based in the Philippines. My background blends creative work — social media, video editing, graphic design — with solid technical skills in web development, database management, and cybersecurity.</p>
-        <p>I completed my vocational IT tract at Iligan Computer Institute and have since worked remotely as a Virtual Assistant, handling everything from brand strategy and content creation to outreach and web design. I thrive on multitasking, staying organized, and delivering results that actually move the needle.</p>
-        <p>I'm currently looking for new opportunities where I can contribute both my creative and technical skill sets to a team that values quality and growth.</p>
-      </div>
-      <div>
-        <p style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink3); margin-bottom: 12px;">Certifications & Education</p>
-        <div class="cert-list">
-          <div class="cert-item">
-            <div class="cert-icon">🎓</div>
-            <div>
-              <div class="cert-name">Programming NC IV</div>
-              <div style="font-size: 11px; color: var(--ink3);">TESDA · Information Technology</div>
-            </div>
-          </div>
-          <div class="cert-item">
-            <div class="cert-icon">🗄️</div>
-            <div>
-              <div class="cert-name">Oracle Database NC III</div>
-              <div style="font-size: 11px; color: var(--ink3);">TESDA · Database Management</div>
-            </div>
-          </div>
-          <div class="cert-item">
-            <div class="cert-icon">☕</div>
-            <div>
-              <div class="cert-name">Java NC III</div>
-              <div style="font-size: 11px; color: var(--ink3);">TESDA · Programming</div>
-            </div>
-          </div>
-          <div class="cert-item">
-            <div class="cert-icon">🔐</div>
-            <div>
-              <div class="cert-name">Cybersecurity & Penetration Testing</div>
-              <div style="font-size: 11px; color: var(--ink3);">NYU via edX</div>
-            </div>
-          </div>
-          <div class="cert-item">
-            <div class="cert-icon">🖥️</div>
-            <div>
-              <div class="cert-name">CS50: Intro to Computer Science</div>
-              <div style="font-size: 11px; color: var(--ink3);">Harvard University via edX</div>
-            </div>
-          </div>
-          <div class="cert-item">
-            <div class="cert-icon">🛡️</div>
-            <div>
-              <div class="cert-name">Cybersecurity Threats & Protocols</div>
-              <div style="font-size: 11px; color: var(--ink3);">DICT Seminar</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+        if self.no_clicks >= 7:
+            self.no_btn.config(state="disabled", fg="#dddddd")
+            self.canvas.itemconfig(self.hint, text="No is broken now. Just click Yes 😂")
 
-<!-- SKILLS -->
-<section id="skills">
-  <div class="section-inner">
-    <div class="section-tag">Capabilities</div>
-    <h2 class="section-title">Skills & Tools</h2>
-    <div class="skills-tabs">
-      <button class="tab-btn active" data-tab="all">All Skills</button>
-      <button class="tab-btn" data-tab="tech">Technical</button>
-      <button class="tab-btn" data-tab="creative">Creative</button>
-      <button class="tab-btn" data-tab="security">Cybersecurity</button>
-    </div>
+    def on_yes(self):
+        self.clear()
+        self.show_celebration()
 
-    <div class="skills-grid skills-panel active" id="tab-all">
-      <div class="skill-card"><div class="skill-icon">🌐</div><div class="skill-name">HTML / CSS / JS</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🐘</div><div class="skill-name">PHP & Backend</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🐍</div><div class="skill-name">Python</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🌙</div><div class="skill-name">Lua (FiveM)</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">☕</div><div class="skill-name">Java</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🗄️</div><div class="skill-name">Oracle SQL</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🎨</div><div class="skill-name">Figma / UI Design</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">📱</div><div class="skill-name">Social Media Mgmt</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🎬</div><div class="skill-name">Video Editing</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🖼️</div><div class="skill-name">Graphic Design</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🔐</div><div class="skill-name">Penetration Testing</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🐧</div><div class="skill-name">Kali Linux / Ubuntu</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">📁</div><div class="skill-name">Git / VS Code</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">📊</div><div class="skill-name">Research & Reporting</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span></div></div>
-    </div>
+    def show_celebration(self):
+        self.canvas = tk.Canvas(self.root, width=500, height=420,
+                                bg="#fff0f6", highlightthickness=0)
+        self.canvas.pack(fill="both", expand=True)
 
-    <div class="skills-grid skills-panel" id="tab-tech">
-      <div class="skill-card"><div class="skill-icon">🌐</div><div class="skill-name">HTML / CSS / JS</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🐘</div><div class="skill-name">PHP</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🐍</div><div class="skill-name">Python</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🌙</div><div class="skill-name">Lua Scripting</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">☕</div><div class="skill-name">Java</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🗄️</div><div class="skill-name">Oracle SQL</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">📁</div><div class="skill-name">Git / GitHub</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-    </div>
+        # Big emoji
+        self.canvas.create_text(250, 100, text="🎉🥳🎊",
+                                font=("Segoe UI Emoji", 48), fill="#e91e8c")
 
-    <div class="skills-grid skills-panel" id="tab-creative">
-      <div class="skill-card"><div class="skill-icon">🎨</div><div class="skill-name">Figma / UI Design</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">📱</div><div class="skill-name">Social Media Mgmt</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🎬</div><div class="skill-name">Video Editing</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🖼️</div><div class="skill-name">Graphic Design</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">📢</div><div class="skill-name">Outreach & Email</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🌐</div><div class="skill-name">Web Design</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-    </div>
+        self.canvas.create_text(250, 200, text="Congratulations!",
+                                font=("Georgia", 28, "bold"), fill="#c2185b")
 
-    <div class="skills-grid skills-panel" id="tab-security">
-      <div class="skill-card"><div class="skill-icon">🔐</div><div class="skill-name">Penetration Testing</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🔍</div><div class="skill-name">Vulnerability Analysis</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">📋</div><div class="skill-name">Log Analysis</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🐧</div><div class="skill-name">Kali Linux</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🛡️</div><div class="skill-name">Security Patching</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span></div></div>
-      <div class="skill-card"><div class="skill-icon">🖥️</div><div class="skill-name">Nmap / Metasploit</div><div class="skill-level"><span class="skill-dot filled"></span><span class="skill-dot filled"></span><span class="skill-dot"></span><span class="skill-dot"></span><span class="skill-dot"></span></div></div>
-    </div>
-  </div>
-</section>
+        self.canvas.create_text(250, 248, text="You're my friend now!",
+                                font=("Georgia", 18), fill="#e91e8c")
 
-<!-- EXPERIENCE -->
-<section id="experience">
-  <div class="section-inner">
-    <div class="section-tag">Work history</div>
-    <h2 class="section-title">Experience</h2>
-    <div class="timeline fade-in">
+        self.canvas.create_text(250, 295, text="No take-backs. It's official. 🤝",
+                                font=("Georgia", 13, "italic"), fill="#888888")
 
-      <div class="timeline-item">
-        <div class="timeline-date">Jun 2024 – Jan 2026</div>
-        <div class="timeline-content">
-          <div class="timeline-role">Virtual Assistant</div>
-          <div class="timeline-company">Remote · Full-time</div>
-          <ul class="timeline-bullets">
-            <li>Managed and grew company social media presence by creating engaging content, scheduling posts, and tracking performance metrics</li>
-            <li>Edited promotional and educational videos with brand consistency across all platforms</li>
-            <li>Conducted in-depth business strategy research and delivered actionable insights aligned with market trends</li>
-            <li>Designed graphics for social media, newsletters, and marketing campaigns using Figma and design tools</li>
-            <li>Executed outreach via TikTok, Reddit, Discord, and email with personalized platform-specific messaging</li>
-            <li>Built responsive, functional websites using HTML, CSS, JavaScript, and PHP; maintained code in GitHub</li>
-          </ul>
-        </div>
-      </div>
+        # Start confetti
+        self.confetti_particles = []
+        colors = ["#e91e8c", "#ff6eb0", "#fff176", "#80deea",
+                  "#b39ddb", "#a5d6a7", "#ffcc80", "#f48fb1"]
+        for _ in range(70):
+            self.confetti_particles.append({
+                "x": random.randint(0, 500),
+                "y": random.randint(-100, 0),
+                "w": random.randint(8, 16),
+                "h": random.randint(4, 9),
+                "color": random.choice(colors),
+                "vx": random.uniform(-2, 2),
+                "vy": random.uniform(2, 5),
+                "rot": random.uniform(0, 360),
+                "vrot": random.uniform(-5, 5),
+                "id": None
+            })
+        self.animating = True
+        self.animate_confetti()
 
-      <div class="timeline-item">
-        <div class="timeline-date">Jan – May 2025</div>
-        <div class="timeline-content">
-          <div class="timeline-role">Secretary</div>
-          <div class="timeline-company">Personal Collection · On-site</div>
-          <ul class="timeline-bullets">
-            <li>Delivered excellent customer service by handling inquiries and promoting new products</li>
-            <li>Supported daily operations, maintained organized records, and assisted with administrative tasks</li>
-          </ul>
-        </div>
-      </div>
+    def animate_confetti(self):
+        if not self.animating:
+            return
+        if not self.canvas.winfo_exists():
+            return
 
-      <div class="timeline-item">
-        <div class="timeline-date">2022 – 2024</div>
-        <div class="timeline-content">
-          <div class="timeline-role">Freelance Junior Programmer</div>
-          <div class="timeline-company">FiveM / GTA V Modding</div>
-          <ul class="timeline-bullets">
-            <li>Fixed Lua script errors by using debuggers and event-triggering to isolate root causes</li>
-            <li>Analyzed server and client logs to track down runtime bugs and crashes</li>
-            <li>Verified all fixes through re-testing to ensure server stability post-deployment</li>
-            <li>Collaborated with admins and devs to troubleshoot and push system updates</li>
-          </ul>
-        </div>
-      </div>
+        # Remove old confetti
+        for p in self.confetti_particles:
+            if p["id"]:
+                try:
+                    self.canvas.delete(p["id"])
+                except Exception:
+                    pass
 
-      <div class="timeline-item">
-        <div class="timeline-date">2020 – 2022</div>
-        <div class="timeline-content">
-          <div class="timeline-role">Security-Focused Junior Programmer / Analyst</div>
-          <div class="timeline-company">Independent</div>
-          <ul class="timeline-bullets">
-            <li>Identified security flaws by stress-testing system behaviors and analyzing their responses</li>
-            <li>Traced vulnerabilities and suspicious activity by parsing server-side and client-side logs</li>
-            <li>Validated security patches through rigorous re-testing to confirm system stability</li>
-            <li>Partnered with technical teams to implement long-term security improvements</li>
-          </ul>
-        </div>
-      </div>
+        for p in self.confetti_particles:
+            p["x"] += p["vx"]
+            p["y"] += p["vy"]
+            p["rot"] += p["vrot"]
 
-    </div>
-  </div>
-</section>
+            # Rotate rectangle manually with polygon
+            cx, cy = p["x"], p["y"]
+            w2, h2 = p["w"] / 2, p["h"] / 2
+            angle = math.radians(p["rot"])
+            cos_a, sin_a = math.cos(angle), math.sin(angle)
 
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="section-inner">
-    <div class="section-tag">Portfolio</div>
-    <h2 class="section-title">Featured Projects</h2>
-    <div class="projects-grid fade-in">
+            corners = [(-w2, -h2), (w2, -h2), (w2, h2), (-w2, h2)]
+            points = []
+            for dx, dy in corners:
+                rx = cx + dx * cos_a - dy * sin_a
+                ry = cy + dx * sin_a + dy * cos_a
+                points.extend([rx, ry])
 
-      <div class="project-card">
-        <span class="project-tag tag-va">Virtual Assistant</span>
-        <div class="project-title">Social Media Growth Campaign</div>
-        <p class="project-desc">Managed full social media lifecycle for a remote client — content creation, scheduling, analytics tracking, and engagement strategy across multiple platforms.</p>
-        <div class="project-tools">
-          <span class="tool-pill">TikTok</span>
-          <span class="tool-pill">Instagram</span>
-          <span class="tool-pill">Canva</span>
-          <span class="tool-pill">Analytics</span>
-        </div>
-      </div>
+            p["id"] = self.canvas.create_polygon(points, fill=p["color"], outline="")
 
-      <div class="project-card">
-        <span class="project-tag tag-design">UI Design</span>
-        <div class="project-title">Figma Web UI Design</div>
-        <p class="project-desc">Designed clean, modern, and responsive website layouts in Figma focusing on structure, visual hierarchy, and seamless user experience across devices.</p>
-        <div class="project-tools">
-          <span class="tool-pill">Figma</span>
-          <span class="tool-pill">Responsive Design</span>
-          <span class="tool-pill">UX</span>
-        </div>
-      </div>
+            if p["y"] > 440:
+                p["y"] = random.randint(-30, -5)
+                p["x"] = random.randint(0, 500)
 
-      <div class="project-card">
-        <span class="project-tag tag-dev">Web Development</span>
-        <div class="project-title">Full-Stack Web Application</div>
-        <p class="project-desc">Built functional and responsive websites from scratch using HTML, CSS, JavaScript, and PHP. Managed version control with Git and deployed clean, maintainable code.</p>
-        <div class="project-tools">
-          <span class="tool-pill">HTML/CSS</span>
-          <span class="tool-pill">JavaScript</span>
-          <span class="tool-pill">PHP</span>
-          <span class="tool-pill">GitHub</span>
-        </div>
-      </div>
+        self.root.after(30, self.animate_confetti)
 
-      <div class="project-card">
-        <span class="project-tag tag-sec">Cybersecurity</span>
-        <div class="project-title">Security Vulnerability Assessment</div>
-        <p class="project-desc">Conducted penetration testing exercises, identified exploitable system weaknesses, and validated security patches through controlled re-testing using Kali Linux tools.</p>
-        <div class="project-tools">
-          <span class="tool-pill">Kali Linux</span>
-          <span class="tool-pill">Nmap</span>
-          <span class="tool-pill">Metasploit</span>
-          <span class="tool-pill">VirtualBox</span>
-        </div>
-      </div>
 
-      <div class="project-card">
-        <span class="project-tag tag-dev">Scripting</span>
-        <div class="project-title">FiveM Server Scripting</div>
-        <p class="project-desc">Developed and debugged advanced Lua scripts for FiveM game servers. Resolved client-server sync issues, optimized event handling, and maintained server stability.</p>
-        <div class="project-tools">
-          <span class="tool-pill">Lua</span>
-          <span class="tool-pill">FiveM API</span>
-          <span class="tool-pill">Debugging</span>
-          <span class="tool-pill">VS Code</span>
-        </div>
-      </div>
+def main():
+    root = tk.Tk()
+    app = FriendApp(root)
+    root.mainloop()
 
-      <div class="project-card">
-        <span class="project-tag tag-va">Content & Outreach</span>
-        <div class="project-title">Multi-Channel Outreach Strategy</div>
-        <p class="project-desc">Executed targeted outreach campaigns across TikTok, Reddit, Discord, and email with platform-specific, personalized messaging that grew brand reach and conversions.</p>
-        <div class="project-tools">
-          <span class="tool-pill">Reddit</span>
-          <span class="tool-pill">Discord</span>
-          <span class="tool-pill">Email Marketing</span>
-          <span class="tool-pill">TikTok</span>
-        </div>
-      </div>
 
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-inner">
-    <div class="section-tag">Let's connect</div>
-    <h2 class="section-title">Open to Work &<br>Collaboration</h2>
-    <div class="contact-grid">
-      <div>
-        <p class="contact-desc">Whether you need a reliable Virtual Assistant, a web developer, or someone to handle your digital presence end-to-end — I'm ready to help. Let's build something great together.</p>
-        <div class="contact-links">
-          <!-- TODO: Replace with your real email -->
-          <a href="mailto:ayveeaureum@gmail.com" class="contact-link">
-            <div class="contact-link-icon">✉️</div>
-            <div>
-              <div>Email me directly</div>
-              <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 1px;">ayveeaureum@gmail.com</div>
-            </div>
-          </a>
-          <!-- TODO: Replace with your real LinkedIn URL -->
-          <a href="https://www.linkedin.com/in/ivy-sabandija-461b3a389/" class="contact-link" target="_blank">
-            <div class="contact-link-icon">💼</div>
-            <div>
-              <div>LinkedIn Profile</div>
-              <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 1px;">Ivy Sabandija</div>
-            </div>
-          </a>
-          <!-- TODO: Replace with your real GitHub URL -->
-          <a href="https://github.com/whcrss" class="contact-link" target="_blank">
-            <div class="contact-link-icon">🐙</div>
-            <div>
-              <div>GitHub</div>
-              <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 1px;">whcrss??</div>
-            </div>
-          </a>
-          <div class="contact-link" style="cursor: default;">
-            <div class="contact-link-icon">📍</div>
-            <div>
-              <div>Location</div>
-              <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 1px;">Iligan City, Philippines · Remote-ready</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="contact-form">
-          <div class="form-field">
-            <label>Your name</label>
-            <input type="text" id="cf-name" placeholder="username">
-          </div>
-          <div class="form-field">
-            <label>Email address</label>
-            <input type="email" id="cf-email" placeholder="@gmail.com">
-          </div>
-          <div class="form-field">
-            <label>Message</label>
-            <textarea id="cf-msg" rows="4" placeholder="Tell me about your project or opportunity..."></textarea>
-          </div>
-          <button class="btn-white" onclick="handleSend()">Send Message</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <p>Designed & built with care · <strong>Ivy Sabandija</strong> · 2020</p>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>
-  emailjs.init("XyxskFKCUSg0TqLTd");
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.skills-panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    });
-  });
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-  function handleSend() {
-    const name = document.getElementById('cf-name').value.trim();
-    const email = document.getElementById('cf-email').value.trim();
-    const msg = document.getElementById('cf-msg').value.trim();
-    if (!name || !email || !msg) { alert('Please fill in all fields.'); return; }
-    const btn = document.querySelector('.btn-white');
-    btn.textContent = 'Sending...';
-    btn.disabled = true;
-    emailjs.send("service_rvfmuw6", "template_kkz7iuu", {
-      from_name: name,
-      from_email: email,
-      message: msg,
-    })
-    .then(() => {
-      btn.textContent = 'Message sent! ✓';
-      btn.style.background = '#d4edda';
-      btn.style.color = '#1a472a';
-      btn.disabled = false;
-      document.getElementById('cf-name').value = '';
-      document.getElementById('cf-email').value = '';
-      document.getElementById('cf-msg').value = '';
-      setTimeout(() => {
-        btn.textContent = 'Send Message';
-        btn.style.background = '';
-        btn.style.color = '';
-      }, 3000);
-    })
-    .catch((error) => {
-      alert('Failed to send email. Please try again.');
-      btn.textContent = 'Send Message';
-      btn.disabled = false;
-      console.error('EmailJS error:', error);
-    });
-    const phoneNumber = "639926491997";
-    const text = `Hello! My name is ${name}%0AEmail: ${email}%0AMessage: ${msg}`;
-    const url = `https://wa.me/${phoneNumber}?text=${text}`;
-    window.open(url, '_blank');
-  }
-</script>
-</body>
-</html>
+if __name__ == "__main__":
+    main()
